@@ -190,4 +190,49 @@ describe("socket", function () {
       /"disconnecting" is a reserved event name/
     );
   });
+
+  describe("volatile packets", () => {
+    it("should discard a volatile packet when the socket is not connected", (done) => {
+      const socket = io({ forceNew: true, autoConnect: false });
+
+      socket.volatile.emit("acknowledge", "might be discarded", () => {
+        done(new Error("should not happen"));
+      });
+
+      socket.emit("acknowledge", "important!", () => {
+        socket.disconnect();
+        done();
+      });
+
+      socket.connect();
+    });
+
+    it("should discard a volatile packet when the pipe is not ready", (done) => {
+      const socket = io({ forceNew: true });
+
+      socket.on("connect", () => {
+        socket.emit("acknowledge", "important!", () => {
+          socket.disconnect();
+          done();
+        });
+
+        socket.volatile.emit("acknowledge", "might be discarded", () => {
+          done(new Error("should not happen"));
+        });
+      });
+    });
+
+    it("should send a volatile packets when the socket is connected and the pipe is ready", (done) => {
+      const socket = io({ forceNew: true });
+
+      socket.on("connect", () => {
+        socket.emit("acknowledge", "important!", () => {
+          socket.volatile.emit("acknowledge", "might be discarded", () => {
+            socket.disconnect();
+            done();
+          });
+        });
+      });
+    });
+  });
 });
