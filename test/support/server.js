@@ -151,8 +151,4 @@ server.on("connection", (socket) => {
   socket.on("getId", (cb) => {
     cb(socket.id);
   });
-
-  socket.on("acknowledge", (_, cb) => {
-    cb();
-  });
 });

@@ -195,11 +195,11 @@ describe("socket", function () {
     it("should discard a volatile packet when the socket is not connected", (done) => {
       const socket = io({ forceNew: true, autoConnect: false });
 
-      socket.volatile.emit("acknowledge", "might be discarded", () => {
+      socket.volatile.emit("getId", () => {
         done(new Error("should not happen"));
       });
 
-      socket.emit("acknowledge", "important!", () => {
+      socket.emit("getId", () => {
         socket.disconnect();
         done();
       });
@@ -211,28 +211,27 @@ describe("socket", function () {
       const socket = io({ forceNew: true });
 
       socket.on("connect", () => {
-        socket.emit("acknowledge", "important!", () => {
+        socket.emit("getId", () => {
           socket.disconnect();
           done();
         });
 
-        socket.volatile.emit("acknowledge", "might be discarded", () => {
+        socket.volatile.emit("getId", () => {
           done(new Error("should not happen"));
         });
       });
     });
 
-    it("should send a volatile packets when the socket is connected and the pipe is ready", (done) => {
+    it("should send a volatile packet when the socket is connected and the pipe is ready", (done) => {
       const socket = io({ forceNew: true });
 
-      socket.on("connect", () => {
-        socket.emit("acknowledge", "important!", () => {
-          socket.volatile.emit("acknowledge", "might be discarded", () => {
-            socket.disconnect();
-            done();
-          });
+      const interval = setInterval(() => {
+        socket.volatile.emit("getId", () => {
+          clearInterval(interval);
+          socket.disconnect();
+          done();
         });
-      });
+      }, 200);
     });
   });
 });
