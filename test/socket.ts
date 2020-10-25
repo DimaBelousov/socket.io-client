@@ -1,7 +1,5 @@
 import * as expect from "expect.js";
 import { io } from "..";
-import { createServer } from "http";
-import { Server, Socket } from "../../socket.io/dist";
 
 describe("socket", function () {
   this.timeout(70000);
